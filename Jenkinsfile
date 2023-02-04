@@ -22,7 +22,7 @@ node {
             image.push("v${env.BUILD_NUMBER}")
         }
     }
-    stage('CleanUp Images'){
+    stage('kubernetes'){
         sh"""
         docker rmi ${ECR_PATH}/${ECR_IMAGE}:v$BUILD_NUMBER
         docker rmi ${ECR_PATH}/${ECR_IMAGE}:latest
