@@ -27,3 +27,14 @@ node {
         docker rmi ${ECR_PATH}/${ECR_IMAGE}:latest
         """
     }
+    stage('Deploy to K8S'){
+        withKubeConfig([credentialsId: "kubectl-deploy-credentials",
+                        serverUrl: "${EKS_API}",
+                        clusterName: "${EKS_CLUSTER_NAME}"]){
+            sh "sed 's/IMAGE_VERSION/${env.BUILD_ID}/g' service.yaml > output.yaml"
+            sh "aws eks --region ${REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
+            sh "kubectl apply -f output.yaml"
+            sh "rm output.yaml"
+        }
+    }
+}
