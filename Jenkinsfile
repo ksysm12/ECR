@@ -11,21 +11,11 @@ node {
     stage('Clone Repository'){
         checkout scm
     }
-    stage('Docker Build'){
-        // Docker Build
-        docker.withRegistry("https://${ECR_PATH}", "ecr:${REGION}:${AWS_CREDENTIAL_ID}"){
-            image = docker.build("${ECR_PATH}/${ECR_IMAGE}", "--network=host --no-cache .")
-        }
+
+    stage('Build to ECR'){
+
     }
-    stage('Push to ECR'){
-        docker.withRegistry("https://${ECR_PATH}", "ecr:${REGION}:${AWS_CREDENTIAL_ID}"){
-            image.push("v${env.BUILD_NUMBER}")
-        }
-    }
-    stage('kubernetes'){
-        sh"""
-        docker rmi ${ECR_PATH}/${ECR_IMAGE}:v$BUILD_NUMBER
-        docker rmi ${ECR_PATH}/${ECR_IMAGE}:latest
-        """
+    stage('Kubernetes'){
+        
     }
 }
