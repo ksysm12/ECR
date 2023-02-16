@@ -29,7 +29,7 @@ node {
         """
     }
     stage('Deploy to K8S'){
-        withKubeConfig([credentialsId: "kubectl-deploy-credentials",
+        withKubeConfig([credentialsId: "default",
                         serverUrl: "${EKS_API}",
                         clusterName: "${EKS_CLUSTER_NAME}"]){
             sh "sed 's/IMAGE_VERSION/${env.BUILD_ID}/g' service.yaml > output.yaml"
