@@ -1,41 +1,27 @@
-REGION = 'ap-northeast-1'
-EKS_API = 'https://E09B58ED12FCA37078881B65A241DAE5.gr7.ap-northeast-1.eks.amazonaws.com'
-EKS_CLUSTER_NAME='terraform-eks-demo'
-EKS_NAMESPACE='default'
-EKS_JENKINS_CREDENTIAL_ID='ksysm12'
-ECR_PATH = '035884387009.dkr.ecr.ap-northeast-1.amazonaws.com/test1'
-ECR_IMAGE = 'test-repository'
-AWS_CREDENTIAL_ID = 'aws-credentials'
+#이미지 빌드시 이름을 ECR 쪽으로 변경
+app = docker.build("035884387009.dkr.ecr.ap-northeast-1.amazonaws.com/test")
 
+# ECR에서 생성한 Repository URI로 변경 및 Jenkins AWS Credential으로 변경
+docker.withRegistry('https://035884387009.dkr.ecr.ap-northeast-1.amazonaws.com', 'ecr:ap-northeast-1:canape1128')
+
+# Full Code
+  
 node {
-    stage('Clone Repository'){
-        checkout scm
-    }
-    stage('Docker Build'){
-        // Docker Build
-        docker.withRegistry("https://${ECR_PATH}", "ecr:${REGION}:${AWS_CREDENTIAL_ID}"){
-            image = docker.build("${ECR_PATH}/${ECR_IMAGE}", "--network=host --no-cache .")
-        }
-    }
-    stage('Push to ECR'){
-        docker.withRegistry("https://${ECR_PATH}", "ecr:${REGION}:${AWS_CREDENTIAL_ID}"){
-            image.push("v${env.BUILD_NUMBER}")
-        }
-    }
-    stage('CleanUp Images'){
-        sh"""
-        docker rmi ${ECR_PATH}/${ECR_IMAGE}:v$BUILD_NUMBER
-        docker rmi ${ECR_PATH}/${ECR_IMAGE}:latest
-        """
-    }
-    stage('Deploy to K8S'){
-        withKubeConfig([credentialsId: "kubectl-deploy-credentials",
-                        serverUrl: "${EKS_API}",
-                        clusterName: "${EKS_CLUSTER_NAME}"]){
-            sh "sed 's/IMAGE_VERSION/${env.BUILD_ID}/g' service.yaml > output.yaml"
-            sh "aws eks --region ${REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
-            sh "kubectl apply -f output.yaml"
-            sh "rm output.yaml"
-        }
-    }
+     stage('Clone repository') {
+         checkout scm
+     }
+
+     stage('Build image') {
+         app = docker.build("035884387009.dkr.ecr.ap-northeast-1.amazonaws.com/test")
+     }
+
+     stage('Push image') {
+         sh 'rm  ~/.dockercfg || true'
+         sh 'rm ~/.docker/config.json || true'
+         
+         docker.withRegistry('https://035884387009.dkr.ecr.ap-northeast-1.amazonaws.com', 'ecr:ap-northeast-1:canape1128') {
+             app.push("${env.BUILD_NUMBER}")
+             app.push("latest")
+     }
+  }
 }
