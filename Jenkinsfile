@@ -3,7 +3,7 @@ EKS_API = 'https://E09B58ED12FCA37078881B65A241DAE5.gr7.ap-northeast-1.eks.amazo
 EKS_CLUSTER_NAME='terraform-eks-demo'
 EKS_NAMESPACE='default'
 EKS_JENKINS_CREDENTIAL_ID='ksysm12'
-ECR_PATH = '035884387009.dkr.ecr.ap-northeast-1.amazonaws.com'
+ECR_PATH = '035884387009.dkr.ecr.ap-northeast-1.amazonaws.com/test1'
 ECR_IMAGE = 'test-repository'
 AWS_CREDENTIAL_ID = 'aws-credentials'
 
